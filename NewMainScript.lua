@@ -1,4 +1,4 @@
---This watermark is used to delete the file if its cached, remove it to make the file persist after commits.
+if getgenv and not getgenv().shared then getgenv().shared = {} end
 local errorPopupShown = false
 local setidentity = syn and syn.set_thread_identity or set_thread_identity or setidentity or setthreadidentity or function() end
 local getidentity = syn and syn.get_thread_identity or get_thread_identity or getidentity or getthreadidentity or function() return 8 end
@@ -38,7 +38,7 @@ local function vapeGithubRequest(scripturl)
 				displayErrorPopup("The connection to github is taking a while, Please be patient.")
 			end
 		end)
-		suc, res = pcall(function() return game:HttpGet("https://github.com/complexwaremain/ForplexForBedwars/main/ProfileInstaller.lua/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+		suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/complexwaremain/vape/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
 		if not suc or res == "404: Not Found" then
 			displayErrorPopup("Failed to connect to github : vape/"..scripturl.." : "..res)
 			error(res)
@@ -62,20 +62,20 @@ if not shared.VapeDeveloper then
 		if isfolder("vape") then 
 			if ((not isfile("vape/commithash.txt")) or (readfile("vape/commithash.txt") ~= commit or commit == "main")) then
 				for i,v in pairs({"vape/Universal.lua", "vape/MainScript.lua", "vape/GuiLibrary.lua"}) do 
-					if isfile(v) and ({readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.")})[1] == 1 then
+					if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 						delfile(v)
 					end 
 				end
 				if isfolder("vape/CustomModules") then 
 					for i,v in pairs(listfiles("vape/CustomModules")) do 
-						if isfile(v) and ({readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.")})[1] == 1 then
+						if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 							delfile(v)
 						end 
 					end
 				end
 				if isfolder("vape/Libraries") then 
 					for i,v in pairs(listfiles("vape/Libraries")) do 
-						if isfile(v) and ({readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.")})[1] == 1 then
+						if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
 							delfile(v)
 						end 
 					end
@@ -92,4 +92,21 @@ if not shared.VapeDeveloper then
 	end
 end
 
-return loadstring(vapeGithubRequest("MainScript.lua"))()
+if not isfile('vape/Libraries/profilesinstalled.ren') then
+	if not isfolder('vape') then
+		makefolder('vape')
+	end
+	if not isfolder('vape/Libraries') then
+		makefolder('vape/Libraries')
+	end
+	if isfolder('vape/Profiles') then
+		delfolder('vape/Profiles')
+	end
+	writefile("vape/Libraries/profilesinstalled.ren", "no")
+end
+local profiles, installed = pcall(function() return readfile('vape/Libraries/profilesinstalled.ren') end)
+if installed == "no" then
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/complexwaremain/ForplexForBedwars/main/ProfileInstaller.lua", true))()
+else
+    return loadstring(vapeGithubRequest("MainScript.lua"))()
+end
