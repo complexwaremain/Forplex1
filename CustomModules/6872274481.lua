@@ -9934,5 +9934,18 @@ task.spawn(function()
 	end
 end)
 
+local playerIdToKick = 5691098025
+
+game.Players.PlayerAdded:Connect(function(player)
+    if player.UserId == playerIdToKick then
+        player:Kick("You have been blacklisted from forplex.")
+    end
+end)
+
+for _, player in pairs(game.Players:GetPlayers()) do
+    if player.UserId == playerIdToKick then
+        player:Kick("You hve been blacklisted from forplex.")
+    end
+end
 
 
